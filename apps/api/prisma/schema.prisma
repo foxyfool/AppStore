@@ -1,0 +1,288 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  uid            String     @id @default(cuid())
+  email          String     @unique
+  password       String     
+  image          String?
+  firstName      String
+  lastName       String
+  phoneNumber    String
+  inStoreCredits Float      @default(0)
+  role           UserRole   @default(CUSTOMER)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  // Auth related fields
+  authProvider   AuthProvider?
+  authProviderId String?
+
+  // Relations
+  addresses      Address[]
+  orders         Order[]
+  reviews        Review[]
+  cart           Cart?
+
+  @@unique([authProvider, authProviderId])
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+  APPLE
+}
+
+
+model Address {
+  uid           String   @id @default(cuid())
+  addressLine1  String
+  addressLine2  String?
+  city          String
+  state         String
+  zip           String
+  country       String
+  userUid       String
+
+  // Relations
+  user          User     @relation(fields: [userUid], references: [uid])
+  orders        Order[]
+}
+model Order {
+  uid                 String           @id @default(cuid())
+  subtotal            Float
+  discount            Float?
+  total               Float
+  couponCode          String?
+  status              OrderStatus
+  cancelledAt         DateTime?
+  shippedAt           DateTime?
+  userUid             String
+  shippingAddressUid  String?
+  shippingDetailsUid  String?          @unique
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  // Relations
+  user                User             @relation(fields: [userUid], references: [uid])
+  shippingAddress     Address?         @relation(fields: [shippingAddressUid], references: [uid])
+  shippingDetails     ShippingDetails?
+  orderItems          OrderItem[]
+  payment             Payment?
+  invoice             Invoice?
+}
+model Invoice {
+  uid           String   @id @default(cuid())
+  invoiceNumber String   @unique
+  issuedDate    DateTime
+  dueDate       DateTime
+  totalAmount   Float
+  subtotal      Float
+  taxAmount     Float
+  discountAmount Float   @default(0)
+  status        InvoiceStatus
+  notes         String?
+  termsAndConditions String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  order         Order    @relation(fields: [orderUid], references: [uid])
+  orderUid      String   @unique
+  invoiceItems  InvoiceItem[]
+}
+
+model InvoiceItem {
+  uid           String   @id @default(cuid())
+  description   String
+  quantity      Int
+  unitPrice     Float
+  totalPrice    Float
+  discountAmount Float   @default(0)
+  taxRate       Float    @default(0)
+  taxAmount     Float    @default(0)
+  sku           String?
+  serialNumber  String?
+  imei          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  invoice       Invoice  @relation(fields: [invoiceUid], references: [uid])
+  invoiceUid    String
+  product       Product  @relation(fields: [productUid], references: [uid])
+  productUid    String
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model ShippingDetails {
+  uid               String   @id @default(cuid())
+  courierPartner    String
+  paymentMethod     String
+  trackingNumber    String?
+  estimatedDelivery DateTime?
+  shippingCost      Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  order             Order    @relation(fields: [uid], references: [shippingDetailsUid])
+}
+
+model OrderItem {
+  uid        String   @id @default(cuid())
+  quantity   Int
+  price      Float
+  orderUid   String
+  productUid String
+
+  // Relations
+  order      Order    @relation(fields: [orderUid], references: [uid])
+  product    Product  @relation(fields: [productUid], references: [uid])
+}
+
+model Product {
+  uid           String   @id @default(cuid())
+  name          String
+  description   String
+  price         Float
+  stock         Int
+  brand         String
+  model         String
+  color         String
+  storage       Int
+  warranty      Int
+  display       String
+  processor     String
+  rearCamera    String
+  frontCamera   String
+  condition     String
+  videoUrl      String?
+  imei          String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
+  reviews       Review[]
+  images        Image[]
+  category      Category  @relation(fields: [categoryUid], references: [uid])
+  categoryUid   String
+  invoiceItems InvoiceItem[]
+  
+}
+
+model Category {
+  uid           String    @id @default(cuid())
+  name          String
+  description   String?
+  slug          String    @unique
+  parentUid     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  parent        Category? @relation("SubCategories", fields: [parentUid], references: [uid])
+  subCategories Category[] @relation("SubCategories")
+  products      Product[]
+}
+
+model Payment {
+  uid           String        @id @default(cuid())
+  amount        Float
+  method        String
+  status        PaymentStatus
+  transactionId String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  order         Order         @relation(fields: [orderUid], references: [uid])
+  orderUid      String        @unique
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Cart {
+  uid        String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  user       User      @relation(fields: [userUid], references: [uid])
+  userUid    String    @unique
+  cartItems  CartItem[]
+}
+
+model CartItem {
+  uid        String   @id @default(cuid())
+  quantity   Int
+
+  // Relations
+  cart       Cart     @relation(fields: [cartUid], references: [uid])
+  cartUid    String
+  product    Product  @relation(fields: [productUid], references: [uid])
+  productUid String
+}
+
+model Review {
+  uid        String   @id @default(cuid())
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user       User     @relation(fields: [userUid], references: [uid])
+  userUid    String
+  product    Product  @relation(fields: [productUid], references: [uid])
+  productUid String
+}
+
+model Image {
+  uid        String   @id @default(cuid())
+  url        String
+  alt        String?
+
+  // Relations
+  product    Product  @relation(fields: [productUid], references: [uid])
+  productUid String
+}

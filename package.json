@@ -1,0 +1,36 @@
+{
+  "name": "foundationX",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pnpm exec nx run-many --target=build",
+    "format": "prettier \"{apps,libs}/**/*.{ts,tsx,js,json}\" --ignore-path .gitignore",
+    "format:check": "pnpm format --check",
+    "format:write": "pnpm format --write",
+    "lint": "pnpm exec nx run-many --target=lint",
+    "tsc": "pnpm exec nx run-many --target=tsc",
+    "validate": "pnpm format:write && pnpm lint && pnpm tsc",
+    "prepare": "husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nx/eslint": "19.4.0",
+    "@nx/jest": "19.4.0",
+    "@nx/next": "19.4.0",
+    "eslint": "~8.57.0",
+    "husky": "^8.0.0",
+    "jest": "^29.4.1",
+    "lint-staged": "^15.2.7",
+    "nx": "19.4.0",
+    "prettier": "^3.0.0"
+  },
+  "dependencies": {
+    "next": "14.2.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
