@@ -174,35 +174,37 @@ model OrderItem {
 }
 
 model Product {
-  uid           String   @id @default(cuid())
-  name          String
-  description   String
-  price         Float
-  stock         Int
-  brand         String
-  model         String
-  color         String
-  storage       Int
-  warranty      Int
-  display       String
-  processor     String
-  rearCamera    String
-  frontCamera   String
-  condition     String
-  videoUrl      String?
-  imei          String   @unique
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  uid             String   @id @default(cuid())
+  name            String
+  description     String
+  price           Float
+  stock           Int
+  brand           String
+  model           String
+  color           String
+  storage         Int
+  ram             Int
+  warranty        Int
+  display         String
+  processor       String
+  rearCamera      String
+  frontCamera     String
+  battery         String
+  operatingSystem String
+  condition       String
+  videoUrl        String?
+  imei            String?  @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
-  orderItems    OrderItem[]
-  cartItems     CartItem[]
-  reviews       Review[]
-  images        Image[]
-  category      Category  @relation(fields: [categoryUid], references: [uid])
-  categoryUid   String
-  invoiceItems InvoiceItem[]
-  
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+  reviews         Review[]
+  images          Image[]
+  category        Category  @relation(fields: [categoryUid], references: [uid])
+  categoryUid     String
+  invoiceItems    InvoiceItem[]
 }
 
 model Category {

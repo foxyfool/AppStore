@@ -40,6 +40,10 @@ export class ProductDto {
 
   @IsNumber()
   @Expose()
+  ram: number
+
+  @IsNumber()
+  @Expose()
   warranty: number
 
   @IsString()
@@ -60,16 +64,24 @@ export class ProductDto {
 
   @IsString()
   @Expose()
+  battery: string
+
+  @IsString()
+  @Expose()
+  operatingSystem: string
+
+  @IsString()
+  @Expose()
   condition: string
+
+  @IsString()
+  @Expose()
+  videoUrl: string
 
   @IsString()
   @IsOptional()
   @Expose()
-  videoUrl?: string
-
-  @IsString()
-  @Expose()
-  imei: string
+  imei?: string
 
   @IsString()
   @Expose()

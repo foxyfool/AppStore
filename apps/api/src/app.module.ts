@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { UserModule } from './user/user.module'
+// import { UserModule } from './user/user.module'
 import { AddressModule } from './address/address.module'
 import { OrderModule } from './order/order.module'
 import { InvoiceModule } from './invoice/invoice.module'
@@ -15,10 +15,11 @@ import { CartModule } from './cart/cart.module'
 import { CartItemModule } from './cart-item/cart-item.module'
 import { ReviewModule } from './review/review.module'
 import { ImageModule } from './image/image.module'
+import { AuthModule } from './auth/auth.module'
 
 @Module({
   imports: [
-    UserModule,
+    // UserModule,
     AddressModule,
     OrderModule,
     InvoiceModule,
@@ -32,6 +33,7 @@ import { ImageModule } from './image/image.module'
     CartItemModule,
     ReviewModule,
     ImageModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
